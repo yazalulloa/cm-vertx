@@ -1,0 +1,26 @@
+<div th:fragment="rate-card">
+  <div th:each="rate: ${results}">
+    <div class="card"
+         th:with="card_id=|rate-card-${rate.id}|"
+         th:attr="id=${card_id}">
+      <span th:text="|ID: ${rate.id}|"></span>
+      <span th:text="|${rate.from_currency} &rightarrow; ${rate.to_currency}|"></span>
+      <span th:text="|Tasa: ${rate.rate}|"></span>
+      <span th:text="|Fecha ${rate.date_of_rate}|"></span>
+      <span th:text="${rate.source}"></span>
+      <span th:text="${rate.created_at}"></span>
+      <button th:if="${rate.delete_item_url} != null" th:attr="hx-delete=${rate.delete_item_url},hx-target=${'#' + card_id}"
+              hx-trigger="click"
+              hx-swap="delete"
+      >
+        DELETE
+      </button>
+    </div>
+    <div hidden="hidden">
+      <span th:if="${rate.hash} != null" th:text="|Hash: ${rate.hash}|"></span>
+      <span th:if="${rate.etag} != null" th:text="|Etag: ${rate.etag}|"></span>
+      <span th:if="${rate.last_modified} != null" th:text="|Last modified: ${rate.last_modified}|"></span>
+    </div>
+  </div>
+  <div th:replace="fragments/next-page-fragment :: next-page-fragment"></div>
+</div>

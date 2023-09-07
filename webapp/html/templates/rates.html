@@ -1,0 +1,11 @@
+<div id="rates-table" class="red-transition" hx-trigger="sse:new_rate" hx-get="/dynamic/rates" hx-swap="outerHTML">
+  <div>
+    <span th:text="|Tasas: ${total_count}|"></span>
+    <button hx-get="/api/rates/bcv-lookup">
+      GET LAST RATE
+      <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
+    </button>
+  </div>
+
+  <div th:replace="templates/rate-card :: rate-card"></div>
+</div>

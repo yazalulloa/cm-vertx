@@ -1,0 +1,24 @@
+<div th:fragment="building-card">
+  <div class="card" th:each="building: ${results}"
+       th:with="card_id=|building-card-${building.id}|"
+       th:attr="id=${card_id}">
+    <span th:text="|ID: ${building.id}|"></span>
+    <span th:text="|Nombre: ${building.name}|"></span>
+    <span th:text="|Moneda Principal: ${building.main_currency}|"></span>
+    <span th:text="|Moneda de deudas: ${building.debt_currency}|"></span>
+    <span th:text="|Monedas a mostrar en el recibo: ${building.currencies_to_show_amount_to_pay}|"></span>
+    <span th:if="${building.fixed_pay}" th:text="|Monto Fijo: ${building.fixed_pay_amount}|"></span>
+    <span th:text="|Redondear Pagos: ${building.round_up_payments}|"></span>
+    <span th:text="|Cantidad de apartamentos: ${building.amount_of_apts}|"></span>
+    <span th:if="${building.email_config} != null" th:text="|Configuración de email ${building.email_config}|"></span>
+    <span th:text="|Creado en: ${building.created_at}|"></span>
+    <span th:if="${building.updated_at} != null" th:text="|Actualizado en: ${building.updated_at}|"></span>
+    <button th:if="${building.delete_item_url} != null" th:attr="hx-delete=${building.delete_item_url},hx-target=${'#' + card_id}"
+            hx-trigger="click"
+            hx-swap="delete"
+    >
+      DELETE
+    </button>
+  </div>
+<!--  <div th:replace="fragments/next-page-fragment :: next-page-fragment"></div>-->
+</div>

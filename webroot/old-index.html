@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="styles.css" rel="stylesheet"/>
+    <title>Condominium Manager</title>
+
+
+    <script src="js/htmx.js"></script>
+    <script src="js/index.js" defer></script>
+</head>
+<body>
+<div id="rates-table" class="original-state" hx-get="/dynamic/rates" hx-trigger="load" hx-swap="outerHTML">
+    Original Content
+</div>
+</body>
+</html>

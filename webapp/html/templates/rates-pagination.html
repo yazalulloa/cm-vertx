@@ -1,0 +1,56 @@
+<div id="rates-table" class="red-transition"  hx-trigger="sse:new_rate" hx-get="/dynamic/rates" hx-swap="outerHTML">
+  <div>
+    <span th:text="|Tasas: ${total_count}|"></span>
+    <button hx-get="/api/rates/bcv-lookup">
+      GET LAST RATE
+      <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
+    </button>
+  </div>
+
+  <div class="card" th:each="rate: ${results}"
+       th:with="delete_url=${delete_item_url + '/' + rate.id},card_id=|rate-card-${rate.id}|"
+       th:attr="id=${card_id}">
+    <span th:text="|ID: ${rate.id}|"></span>
+    <span th:text="|${rate.from_currency} &rightarrow; ${rate.to_currency}|"></span>
+    <span th:text="|Tasa: ${rate.rate}|"></span>
+    <span th:text="|Fecha ${rate.date_of_rate}|"></span>
+    <span th:text="${rate.source}"></span>
+    <span th:text="${rate.created_at}"></span>
+    <span th:if="${rate.hash} != null" th:text="|Hash: ${rate.hash}|"></span>
+    <span th:if="${rate.etag} != null" th:text="|Etag: ${rate.etag}|"></span>
+    <span th:if="${rate.last_modified} != null" th:text="|Last modified: ${rate.last_modified}|"></span>
+    <button th:if="${delete_item_url} != null" th:attr="hx-delete=${delete_url},hx-target=${'#' + card_id}"
+            hx-trigger="click"
+            hx-swap="delete"
+    >
+      DELETE
+    </button>
+  </div>
+
+  <div class="grid-paginator">
+    <button th:if="${first_page_url} != null" th:attr="hx-get=${first_page_url}"
+            hx-trigger="click"
+            hx-target="#rates-table"
+            hx-swap="outerHTML">
+      FIRST PAGE
+    </button>
+    <button th:if="${previous_page_url} != null" th:attr="hx-get=${previous_page_url}"
+            hx-trigger="click"
+            hx-target="#rates-table"
+            hx-swap="outerHTML">
+      PREVIOUS PAGE
+    </button>
+    <button th:if="${next_page_url} != null" th:attr="hx-get=${next_page_url}"
+            hx-trigger="click"
+            hx-target="#rates-table"
+            hx-swap="outerHTML">
+      NEXT PAGE
+    </button>
+    <button th:if="${last_page_url} != null" th:attr="hx-get=${last_page_url}"
+            hx-trigger="click"
+            hx-target="#rates-table"
+            hx-swap="outerHTML">
+      LAST PAGE
+    </button>
+  </div>
+</div>
