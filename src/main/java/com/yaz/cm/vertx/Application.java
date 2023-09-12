@@ -25,6 +25,10 @@ public class Application {
     Files.createDirectories(Paths.get("config"));
     FileUtil.writeEnvToFile("CONFIG_FILE", "config/config.yml");
 
+    System.getenv().forEach((key, value) -> {
+      log.info("{}={}", key, value);
+    });
+
     if (EnvUtil.isShowDir()) {
       FileUtil.showDir();
     }
