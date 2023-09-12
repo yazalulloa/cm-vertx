@@ -13,6 +13,7 @@ import io.vertx.mysqlclient.MySQLException;
 import io.vertx.rxjava3.core.Vertx;
 import io.vertx.rxjava3.mysqlclient.MySQLPool;
 import io.vertx.rxjava3.sqlclient.SqlClient;
+import io.vertx.sqlclient.ClosedConnectionException;
 import io.vertx.sqlclient.DatabaseException;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
@@ -37,7 +38,7 @@ public class MySqlVerticle extends BaseVerticle {
     init();
     eventBusConsumer(REQUEST, this::request);
     eventBusConsumer(TRANSACTION, this::transaction);
-    // eventBusConsumerEmptyBody(GET_TABLES, this::getTables);
+    //eventBusConsumerEmptyBody(GET_TABLES, this::getTables);
     vertx.setTimer(TimeUnit.SECONDS.toMillis(3), l -> {
       subscribe(showMetadata());
     });
@@ -103,6 +104,7 @@ public class MySqlVerticle extends BaseVerticle {
               final var sqlState = mySQLException.getSqlState();
 
               if (errorCode == 1105) {
+                logger.info("QUERY {}", request.query());
                 return true;
               }
 
@@ -112,8 +114,10 @@ public class MySqlVerticle extends BaseVerticle {
           } else if (throwable instanceof MySQLBatchException mySQLBatchException) {
 
             final var iterationError = mySQLBatchException.getIterationError();
-            logger.error("DB_TX_ERROR", throwable);
-            iterationError.forEach((i, t) -> logger.error("DB_TX_ERROR {}", i, t));
+            logger.error("DB_BATCH_ERROR {}", request, throwable);
+            iterationError.forEach((i, t) -> logger.error("DB_BATCH_ERROR_NUMBER {}", i, t));
+          } else if (throwable instanceof ClosedConnectionException) {
+            return true;
           }
           logger.error("MYSQL_ERROR", throwable);
 

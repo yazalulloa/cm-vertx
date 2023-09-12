@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DataController implements Handler<RoutingContext> {
+public class  DataController implements Handler<RoutingContext> {
 
   private final DataContextProvider dataContextProvider;
 

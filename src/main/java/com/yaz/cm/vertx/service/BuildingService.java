@@ -40,14 +40,7 @@ public class BuildingService {
 
   public Single<List<JsonObject>> listJson(BuildingQuery query) {
     return repository.select(query)
-        .map(rows -> {
-          final var list = new ArrayList<JsonObject>();
-          for (Row row : rows) {
-            final var json = row.toJson();
-            list.add(json);
-          }
-          return list;
-        });
+        .map(SqlUtil::toJsonObject);
   }
 
   public Single<List<Building>> list(BuildingQuery rateQuery) {
@@ -55,4 +48,17 @@ public class BuildingService {
         .map(rows -> SqlUtil.toList(rows, Building.class));
   }
 
+  public Single<List<String>> ids() {
+
+    return repository.selectAllIds()
+        .map(rows -> {
+
+          final var list = new ArrayList<String>();
+          for (Row row : rows) {
+            list.add(row.getString("id"));
+          }
+
+          return list;
+        });
+  }
 }

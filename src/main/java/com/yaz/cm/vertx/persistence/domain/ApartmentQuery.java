@@ -24,6 +24,12 @@ public class ApartmentQuery {
 
   private final String lastBuildingId;
   private final String lastNumber;
+  private final String q;
+  private final String building;
   @Builder.Default
   private final int limit = 30;
+
+  public static ApartmentQuery of(String q, String building) {
+    return ApartmentQuery.builder().q(q).building(building).build();
+  }
 }

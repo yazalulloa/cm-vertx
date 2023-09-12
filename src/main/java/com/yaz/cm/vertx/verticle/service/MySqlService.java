@@ -13,17 +13,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class MySqlService {
 
+  private static final String TOTAL_COUNT = "SELECT count(*) as total_count FROM %s";
+
   private final VertxHandler vertxHandler;
 
   public Single<Long> totalCount(String collection) {
 
-    final var sql = "SELECT count(*) as total_count FROM %s".formatted(collection);
-    return request(MySqlQueryRequest.normal(sql))
+    final var sql = TOTAL_COUNT.formatted(collection);
+    return extractLong(MySqlQueryRequest.normal(sql), "total_count");
+  }
+
+  public Single<Long> extractLong(MySqlQueryRequest queryRequest, String field) {
+    return request(queryRequest)
         .map(rows -> {
           final var rowIterator = rows.iterator();
           if (rowIterator.hasNext()) {
             final var row = rowIterator.next();
-            return row.getLong("total_count");
+            return row.getLong(field);
           }
           return 0L;
         });

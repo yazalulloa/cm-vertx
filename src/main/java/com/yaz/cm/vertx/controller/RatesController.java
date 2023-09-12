@@ -94,7 +94,6 @@ public class RatesController implements DataContextProvider {
 
     return paging(build)
         .map(paging -> templateService.data(actualLimit, paging,
-            Comparator.comparing((JsonObject o) -> o.getLong("id")).reversed(),
             map -> map.put("delete_item_url", "/api/rates/" + map.get("id")),
             map -> "?last_id=" + map.get("id").toString()))
         .doOnSuccess(data -> {

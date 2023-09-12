@@ -19,15 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PagingDataTemplateService {
 
   public Map<String, Object> data(int actualLimit, Paging<JsonObject> paging,
-      Comparator<JsonObject> comparator,
       Consumer<Map<String, Object>> itemConsumer,
       Function<Map<String, Object>, String> lastParams) {
-    final var totalCount = paging.totalCount();
-    final var queryCount = paging.queryCount();
 
     final var results = paging.results()
         .stream()
-        .sorted(comparator)
         .map(JsonObject::getMap)
         .peek(itemConsumer)
         .collect(Collectors.toCollection(() -> new ArrayList<>(paging.results().size())));
@@ -71,8 +67,9 @@ public class PagingDataTemplateService {
     }
 
     final var data = new HashMap<String, Object>();
-    data.put("total_count", totalCount);
-    data.put("query_count", queryCount);
+
+    data.put("total_count", paging.totalCount());
+    data.put("query_count", paging.queryCount());
     data.put("results", results);
     data.put("next_page_url", nextPageUrl);
 

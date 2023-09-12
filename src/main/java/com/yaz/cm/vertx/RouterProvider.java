@@ -116,8 +116,9 @@ public class RouterProvider {
             .setCookieHttpOnlyFlag(true)
             .setCookieSecureFlag(true)
         )
-        .handler(RequestLogHandler.create(vertx))
-        //.handler(LoggerHandler.create(true, LoggerFormat.DEFAULT))
+        .handler(EnvUtil.bool("CUSTOM_ACCESS_LOG")
+            ? RequestLogHandler.create(vertx)
+            : LoggerHandler.create(true, LoggerFormat.DEFAULT))
         .handler(FaviconHandler.create(vertx))
         .handler(corsHandler)
         .handler(HSTSHandler.create())
@@ -204,11 +205,13 @@ public class RouterProvider {
     final var dataBuildingController = new DataController(buildingController);
     router.get("/dynamic/buildings").handler(dataBuildingController);
     router.get("/dynamic/building-card").handler(dataBuildingController);
+    router.get("/dynamic/buildings-selector").handler(buildingController::selector);
 
     final var dataApartmentController = new DataController(apartmentController);
     router.get("/dynamic/apartments").handler(dataApartmentController);
     router.get("/dynamic/apartment-card").handler(dataApartmentController);
-
+    router.get("/dynamic/apartment-counters").handler(apartmentController::counters);
+    router.get("/dynamic/apartment-total-count").handler(apartmentController::totalCount);
     router.route("/dynamic/*").handler(disableCacheHandler);
 
     router.route("/*").handler(StaticHandler.create().setCachingEnabled(cacheEnabled));

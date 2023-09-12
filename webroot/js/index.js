@@ -1,3 +1,27 @@
+window.onload = function() {
+  const inputs = document.getElementsByTagName('input');
+  console.log("inputs: {}", inputs.length);
+  for (let i = 0; i < inputs.length; i++) {
+    console.log("input type: {}", inputs[i].type);
+    if (inputs[i].type === 'search') {
+      console.log("setting trim")
+      inputs[i].onchange = function() {
+        let value = this.value;
+        console.log("trimming {}", value);
+        this.value = this.value.replace(/^\s+/, '').replace(/\s+$/, '').trim();
+        let val2 = this.value;
+        console.log("trimmed {}", val2);
+      };
+    }
+  }
+}
+
+function trimInput(el) {
+  console.log("trimming {}", el.value)
+  el.value = el.value.trim();
+  console.log("trimmed {} | ", el.value)
+}
+
 function getCookie(name) {
   const cookies = document.cookie.split('; ');
   for (let i = 0; i < cookies.length; i++) {

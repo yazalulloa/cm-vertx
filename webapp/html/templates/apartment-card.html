@@ -1,19 +1,29 @@
-<div th:fragment="apartment-card">
-  <div class="card" th:each="apt: ${results}"
-       th:with="card_id=|apt-card-${apt.building_id}-${apt.number}|"
-       th:attr="id=${card_id}">
-    <span th:text="|Edif: ${apt.building_id}|"></span>
-    <span th:text="|Nro. ${apt.number}|"></span>
-    <span th:text="${apt.name}"></span>
-    <span th:text="|Aliquota: ${apt.aliquot}|"></span>
-    <span th:text="|Creado en: ${apt.created_at}|"></span>
-    <span th:if="${apt.updated_at} != null" th:text="|Actualizado en: ${apt.updated_at}|"></span>
-    <button th:if="${apt.delete_item_url} != null" th:attr="hx-delete=${apt.delete_item_url},hx-target=${'#' + card_id}"
+<tr class="table-row" th:each="apt: ${results}"
+    th:with="card_id=|apt-card-${apt.building_id}-${apt.number}|"
+    th:attr="id=${card_id}"
+
+>
+  <td th:text="${apt.building_id}"></td>
+  <td th:text="${apt.number}"></td>
+  <td th:text="${apt.name}"></td>
+  <td>
+    <div class="apt-emails">
+      <span th:each="email: ${apt.emails}" th:text="${email}"></span>
+    </div>
+  </td>
+  <td th:text="${apt.aliquot}"></td>
+  <td>
+    <button class="delete-btn" th:if="${apt.delete_item_url} != null"
+            th:attr="hx-delete=${apt.delete_item_url},hx-target=${'#' + card_id}"
             hx-trigger="click"
             hx-swap="delete"
     >
-      DELETE
+      <img src="/assets/trash.svg" alt="delete-row">
     </button>
-  </div>
-  <div th:replace="fragments/next-page-fragment :: next-page-fragment"></div>
-</div>
+  </td>
+</tr>
+
+<tr th:if="${next_page_url} != null" th:attr="hx-get=${next_page_url}"
+    hx-trigger="revealed"
+    hx-swap="outerHTML">
+</tr>

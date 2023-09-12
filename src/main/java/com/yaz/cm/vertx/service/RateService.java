@@ -45,14 +45,7 @@ public class RateService {
 
   public Single<List<JsonObject>> listJson(RateQuery rateQuery) {
     return rateRepository.listRows(rateQuery)
-        .map(rows -> {
-          final var list = new ArrayList<JsonObject>();
-          for (Row row : rows) {
-            final var json = row.toJson();
-            list.add(json);
-          }
-          return list;
-        });
+        .map(SqlUtil::toJsonObject);
   }
 
   public Single<List<Rate>> list(RateQuery rateQuery) {
@@ -64,18 +57,7 @@ public class RateService {
   public Maybe<Rate> last(Currency fromCurrency, Currency toCurrency) {
 
     return rateRepository.last(fromCurrency, toCurrency)
-        .flatMapMaybe(rows -> {
-          final var iterator = rows.iterator();
-
-          if (!iterator.hasNext()) {
-            return Maybe.empty();
-          }
-
-          final var row = iterator.next();
-          final var json = row.toJson().encode();
-          final var rate = Json.decodeValue(json, Rate.class);
-          return Maybe.just(rate);
-        });
+        .flatMapMaybe(rows -> SqlUtil.parseOne(rows, Rate.class));
   }
 
   public Single<Rate> save(Rate rate) {

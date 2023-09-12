@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apartamentos</title>
+  <link href="styles.css" rel="stylesheet"/>
+  <script src="js/htmx.js"></script>
+  <script src="js/sse.js"></script>
+  <script src="js/index.js" defer></script>
+</head>
+<body>
+
+<div id="main">
+
+    <div id="apartments" class="original-state" hx-get="/dynamic/apartments" hx-trigger="load" hx-swap="outerHTML">
+<!--    <img class="htmx-indicator center img-small-size" src="/assets/bars.svg" alt="spinner">-->
+  </div>
+</div>
+
+</body>
+</html>

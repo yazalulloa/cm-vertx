@@ -8,7 +8,6 @@ import com.yaz.cm.vertx.util.ConvertUtil;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -55,6 +54,15 @@ public class BuildingController implements DataContextProvider {
         });
   }
 
+  public void selector(RoutingContext ctx) {
+    service.ids()
+        .subscribe(list -> {
+          ctx.data().put("buildings", list);
+          ctx.next();
+
+        }, ctx::fail);
+  }
+
   @Override
   public Single<Map<String, Object>> data(RoutingContext ctx) {
     final var lastId = Optional.ofNullable(ctx.queryParams().get("last_id"))
@@ -72,7 +80,6 @@ public class BuildingController implements DataContextProvider {
 
     return paging(build)
         .map(paging -> templateService.data(actualLimit, paging,
-            Comparator.comparing((JsonObject o) -> o.getString("id")).reversed(),
             map -> map.put("delete_item_url", "/api/buildings/" + map.get("id")),
             map -> "?last_id=" + map.get("id").toString()))
         .doOnSuccess(data -> {

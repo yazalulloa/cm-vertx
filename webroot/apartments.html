@@ -6,13 +6,55 @@
   <link href="styles.css" rel="stylesheet"/>
   <script src="js/htmx.js"></script>
   <script src="js/sse.js"></script>
+  <script src="js/hyperscript.js"></script>
   <script src="js/index.js" defer></script>
 </head>
 <body>
 
-<div id="main">
+<div id="apartments" class="red-transition">
+  <div class="header">
+    <div hx-get="/dynamic/apartment-counters"
+         hx-include="[name='building'], [name='q']"
+         hx-trigger="load, apt-counters-event from:body"
+         hx-swap="innerHTML">
 
-  <div id="apartments-table" class="original-state" hx-get="/dynamic/apartments" hx-trigger="load" hx-swap="outerHTML">
+    </div>
+
+    <div hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load" hx-swap="outerHTML">
+      <label for="buildings-selector"></label>
+      <select id="buildings-selector" name="building">
+      </select>
+    </div>
+
+    <label for="apt-search-input"></label>
+    <input id="apt-search-input" type="search" name="q" required="required"
+           hx-get="/dynamic/apartment-card"
+           hx-include="[name='building']"
+           hx-trigger="keyup changed delay:700ms, search"
+           hx-target="#apartments-table-body"
+           hx-swap="innerHTML"
+           hx-indicator=".htmx-indicator"
+           placeholder="Buscar..."
+    >
+
+  </div>
+
+  <table hx-indicator=".htmx-indicator" class="dfl-table">
+    <caption></caption>
+    <thead>
+    <tr>
+      <th>Edificio</th>
+      <th>Apto</th>
+      <th>Nombre</th>
+      <th>Emails</th>
+      <th>Alícuota</th>
+      <th>Acciones</th>
+    </thead>
+    <tbody id="apartments-table-body">
+    <tr hx-get="/dynamic/apartment-card" hx-trigger="load" hx-swap="outerHTML">
+    </tbody>
+  </table>
+  <div>
     <img class="htmx-indicator center img-small-size" src="/assets/bars.svg" alt="spinner">
   </div>
 </div>

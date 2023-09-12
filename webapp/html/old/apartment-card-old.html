@@ -1,0 +1,27 @@
+<div th:replace="templates/apartment-total-count"></div>
+<span id="apartment-query-count" hx-swap-oob="true" th:with="value=|Items: ${query_count}|"
+      th:text="${query_count} != null ? ${value}  : ''"></span>
+
+<div id="apartments-table" th:fragment="apartment-card">
+  <div class="card" th:each="apt: ${results}"
+       th:with="card_id=|apt-card-${apt.building_id}-${apt.number}|"
+       th:attr="id=${card_id}">
+    <span th:text="${apt.building_id}"></span>
+    <span th:text="${apt.number}"></span>
+    <span th:text="${apt.name}"></span>
+    <div class="apt-emails">
+      <span th:each="email: ${apt.emails}" th:text="${email}"></span>
+    </div>
+    <span th:text="${apt.aliquot}"></span>
+    <!--    <span th:text="|Creado en: ${apt.created_at}|"></span>-->
+    <!--    <span th:if="${apt.updated_at} != null" th:text="|Actualizado en: ${apt.updated_at}|"></span>-->
+    <button class="delete-btn" th:if="${apt.delete_item_url} != null"
+            th:attr="hx-delete=${apt.delete_item_url},hx-target=${'#' + card_id}"
+            hx-trigger="click"
+            hx-swap="delete"
+    >
+      <img src="/assets/trash.svg" alt="delete-row">
+    </button>
+  </div>
+  <div th:replace="fragments/next-page-fragment :: next-page-fragment"></div>
+</div>

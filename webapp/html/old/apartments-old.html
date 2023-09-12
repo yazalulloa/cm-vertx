@@ -1,0 +1,14 @@
+<div id="apartments" class="red-transition">
+  <div>
+    <span id="apartment-total-count" th:text="|Apartamentos: ${total_count}|"></span>
+    <span id="apartment-query-count"></span>
+    <input type="text" name="q"
+           hx-get="/dynamic/apartment-card"
+           hx-trigger="keyup changed delay:500ms"
+           hx-target="#apartments-table"
+           placeholder="Buscar..."
+    >
+  </div>
+
+  <div th:replace="templates/apartment-card :: apartment-card"></div>
+</div>

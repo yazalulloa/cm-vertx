@@ -14,6 +14,7 @@ public class CspHandlerProvider {
 
     return CSPHandler.create()
         .addDirective("default-src", "self")
+        .addDirective("default-src", "'unsafe-eval'")
         .addDirective(CSP_STYLE_SRC, "self")
         .addDirective(CSP_STYLE_SRC, "'sha256-d7rFBVhb3n/Drrf+EpNWYdITkos3kQRFpB0oSOycXg4='")
         .addDirective(CSP_STYLE_SRC, "'sha256-jPRu7by0R+2ETbOf5tPoWVYj5vtouMdYPT7unU4YjBY='")

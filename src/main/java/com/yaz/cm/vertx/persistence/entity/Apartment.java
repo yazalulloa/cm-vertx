@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -28,6 +29,7 @@ public class Apartment {
   private final String number;
   private final String name;
   private final BigDecimal aliquot;
+  private final Set<String> emails;
   private final LocalDateTime createdAt;
   private final LocalDateTime updatedAt;
 }

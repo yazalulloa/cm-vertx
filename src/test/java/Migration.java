@@ -5,6 +5,7 @@ import com.yaz.cm.vertx.util.RxUtil;
 import com.yaz.cm.vertx.util.SqlUtil;
 import di.TestComponent;
 import io.reactivex.rxjava3.core.Observable;
+import io.vertx.core.json.Json;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.mysqlclient.MySQLBatchException;
@@ -32,7 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @Slf4j
 @ExtendWith(VertxExtension.class)
-public class Migration {
+class Migration {
 
   private static TestComponent component;
 
@@ -46,7 +47,7 @@ public class Migration {
     component.verticleDeployer().deploy().onComplete(testContext.succeedingThenComplete());
   }
 
-  @Test
+  /*@Test
   void migrateRates() throws InterruptedException {
     final var pagingProcessor = component.ratePagingProcessorImpl();
 
@@ -78,7 +79,7 @@ public class Migration {
     testObserver
         .assertComplete()
         .assertNoErrors();
-  }
+  }*/
 
   @Test
   void migrateBackups() throws InterruptedException, IOException {
@@ -141,11 +142,15 @@ public class Migration {
                     .number(apt.apartmentId().number())
                     .name(apt.name())
                     .aliquot(apt.amountToPay())
+                    .emails(apt.emails())
                     .createdAt(DateUtil.utcLocalDateTime())
                     .build())
                 .toList()
                 .flatMap(apartmentRepository::replace)
                 .doOnSuccess(SqlUtil::print)
+                .doOnError(throwable -> {
+                  log.info("ERROR {}", Json.encode(list));
+                })
                 .ignoreElement();
 
           }).blockingSubscribe();

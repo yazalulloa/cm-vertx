@@ -7,9 +7,8 @@ import com.yaz.cm.vertx.persistence.repository.ApartmentRepository;
 import com.yaz.cm.vertx.util.SqlUtil;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.json.JsonObject;
-import io.vertx.sqlclient.Row;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,10 @@ public class ApartmentService {
     return repository.count();
   }
 
+  public Single<Optional<Long>> queryCount(ApartmentQuery query) {
+    return repository.queryCount(query) ;
+  }
+
   public Single<Integer> delete(String buildingId, String number) {
     return repository.delete(buildingId, number);
   }
@@ -32,26 +35,19 @@ public class ApartmentService {
     return repository.deleteByBuildingId(buildingId);
   }
 
-  public Single<Paging<Apartment>> paging(ApartmentQuery rateQuery) {
-    return Single.zip(count(), list(rateQuery),
-        (totalCount, list) -> new Paging<>(totalCount, null, list));
+  public Single<Paging<Apartment>> paging(ApartmentQuery query) {
+    return Single.zip(count(), queryCount(query), list(query),
+        (totalCount, queryCount, list) -> new Paging<>(totalCount, queryCount.orElse(null), list));
   }
 
-  public Single<Paging<JsonObject>> pagingJson(ApartmentQuery rateQuery) {
-    return Single.zip(count(), listJson(rateQuery),
-        (totalCount, list) -> new Paging<>(totalCount, null, list));
+  public Single<Paging<JsonObject>> pagingJson(ApartmentQuery query) {
+    return Single.zip(count(), queryCount(query), listJson(query),
+        (totalCount, queryCount, list) -> new Paging<>(totalCount, queryCount.orElse(null), list));
   }
 
   public Single<List<JsonObject>> listJson(ApartmentQuery query) {
     return repository.select(query)
-        .map(rows -> {
-          final var list = new ArrayList<JsonObject>();
-          for (Row row : rows) {
-            final var json = row.toJson();
-            list.add(json);
-          }
-          return list;
-        });
+        .map(SqlUtil::toJsonObject);
   }
 
   public Single<List<Apartment>> list(ApartmentQuery rateQuery) {
