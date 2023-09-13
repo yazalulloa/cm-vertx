@@ -173,7 +173,7 @@
     </dependency>
 
 
-<!--    lombok must be before dagger-->
+    <!--    lombok must be before dagger-->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -193,12 +193,11 @@
       <version>${dagger.version}</version>
     </dependency>
 
-
-   <!-- <dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>2.0.7</version>
-    </dependency>-->
+    </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -257,12 +256,6 @@
       <version>2.2.0</version>
     </dependency>
 
-    <!--  <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>6.0.11</version>
-      </dependency>-->
-
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-junit5</artifactId>
@@ -274,12 +267,7 @@
       <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
-         <version>${junit-jupiter.version}</version>
-         <scope>test</scope>
-     </dependency>-->
+
   </dependencies>
 
   <build>
@@ -357,33 +345,33 @@
         </configuration>
       </plugin>
 
- <!--     <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>${maven-shade-plugin.version}</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Main-Class>${launcher.class}</Main-Class>
-                    &lt;!&ndash;<Main-Verticle>${main.verticle}</Main-Verticle>&ndash;&gt;
-                  </manifestEntries>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-              </transformers>
-              <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar
-              </outputFile>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>-->
+      <!--     <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-shade-plugin</artifactId>
+             <version>${maven-shade-plugin.version}</version>
+             <executions>
+               <execution>
+                 <phase>package</phase>
+                 <goals>
+                   <goal>shade</goal>
+                 </goals>
+                 <configuration>
+                   <transformers>
+                     <transformer
+                       implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                       <manifestEntries>
+                         <Main-Class>${launcher.class}</Main-Class>
+                         &lt;!&ndash;<Main-Verticle>${main.verticle}</Main-Verticle>&ndash;&gt;
+                       </manifestEntries>
+                     </transformer>
+                     <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                   </transformers>
+                   <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar
+                   </outputFile>
+                 </configuration>
+               </execution>
+             </executions>
+           </plugin>-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -391,18 +379,18 @@
         <version>${maven-surefire-plugin.version}</version>
       </plugin>
 
-    <!--  <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec-maven-plugin.version}</version>
-        <configuration>
-          <mainClass>${launcher.class}</mainClass>
-          <arguments>
-            <argument>run</argument>
-            &lt;!&ndash;            <argument>${main.verticle}</argument>&ndash;&gt;
-          </arguments>
-        </configuration>
-      </plugin>-->
+      <!--  <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec-maven-plugin.version}</version>
+          <configuration>
+            <mainClass>${launcher.class}</mainClass>
+            <arguments>
+              <argument>run</argument>
+              &lt;!&ndash;            <argument>${main.verticle}</argument>&ndash;&gt;
+            </arguments>
+          </configuration>
+        </plugin>-->
 
     </plugins>
   </build>

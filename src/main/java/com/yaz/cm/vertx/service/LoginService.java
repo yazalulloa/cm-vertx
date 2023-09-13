@@ -31,12 +31,12 @@ public class LoginService {
     final var session = ctx.session();
     final var user = ctx.user();
 
-    log.info("ctx_session {} {} {}", session.toString(), session.id(), session.data());
+    //log.info("ctx_session {} {} {}", session.toString(), session.id(), session.data());
     final var principal = user.principal();
     final var idToken = principal.getString("id_token");
     final var attributes = user.attributes();
 
-    log.info("USER {} \nPRINCIPAL {} \nattr {}", user, principal.encodePrettily(), attributes.encodePrettily());
+    //log.info("USER {} \nPRINCIPAL {} \nattr {}", user, principal.encodePrettily(), attributes.encodePrettily());
 
     final var userInfoSingle = vertxHandler.single(authProvider.userInfo(ctx.user()));
 
@@ -49,8 +49,8 @@ public class LoginService {
           }
 
           final var verifyToken = result.obj();
-          log.info("VERIFY_TOKEN {}", verifyToken.encodePrettily());
-          log.info("USER_INFO {}", userInfo.encodePrettily());
+          //log.info("VERIFY_TOKEN {}", verifyToken.encodePrettily());
+          //log.info("USER_INFO {}", userInfo.encodePrettily());
 
           final var userData = GoogleUserData.builder()
               .sub(userInfo.getString("id"))

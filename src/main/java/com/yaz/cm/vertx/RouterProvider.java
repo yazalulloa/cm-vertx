@@ -30,6 +30,7 @@ import io.vertx.ext.web.handler.OAuth2AuthHandler;
 import io.vertx.ext.web.handler.RedirectAuthHandler;
 import io.vertx.ext.web.handler.ResponseContentTypeHandler;
 import io.vertx.ext.web.handler.ResponseTimeHandler;
+import io.vertx.ext.web.handler.SecurityPolicyHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
@@ -97,6 +98,7 @@ public class RouterProvider {
         .allowedHeader("Origin")
         .allowedHeader("origin")
         .allowedHeader("Referrer")
+        .allowedHeader("Authorization")
         .allowedHeader(csrfHeaderName);
 
     final var csrfHandler = CSRFHandler.create(vertx, "6E6CgNwDJzNHLqP9w5F7")
@@ -126,6 +128,12 @@ public class RouterProvider {
         .handler(XFrameHandler.create(XFrameHandler.SAMEORIGIN))
         .handler(BodyHandler.create(false));
 
+    SecurityPolicyHandler addHeadersHandler = ctx -> {
+      ctx.response().putHeader(HttpHeaders.REFERER, "strict-origin-when-cross-origin");
+      ctx.response().putHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+      ctx.next();
+    };
+
     router.route("/metrics").handler(PrometheusScrapingHandler.create());
 
     //router.route(googleCallback).handler(loginController::googleRedirect);
@@ -135,6 +143,8 @@ public class RouterProvider {
         .handler(loginService::loginPage);*/
     final var loginHandler = router.route(loginRoute)
         .handler(authHandler);
+
+    router.route().handler(addHeadersHandler);
 
     googleCallbackRoute.failureHandler(ctx -> {
       log.info("googleCallback {}", googleCallback, ctx.failure());
@@ -149,17 +159,6 @@ public class RouterProvider {
     }
 
     router.route().handler(csrfHandler);
-
-    router.route()
-        .handler(ctx -> {
-          ctx.response().headersEndHandler(v -> {
-
-            ctx.response().putHeader(HttpHeaders.REFERER, "strict-origin-when-cross-origin");
-            ctx.response().putHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-          });
-
-          ctx.next();
-        });
 
     final var ssePath = "/sse";
     final var sseHandler = SSEHandler.create();
