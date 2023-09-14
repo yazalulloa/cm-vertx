@@ -129,6 +129,11 @@ public class ApartmentController implements DataContextProvider {
                 queryParams += "&q=%s".formatted(query.q());
               }
 
+              if (query.building() != null) {
+                queryParams += "&building=%s".formatted(query.building());
+
+              }
+
               return queryParams;
             }))
         .doOnSuccess(data -> {
