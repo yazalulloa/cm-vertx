@@ -27,3 +27,11 @@
     hx-trigger="revealed"
     hx-swap="outerHTML">
 </tr>
+
+<div id="apartment-counters" hx-swap-oob="true">
+  <span id="apartment-total-count"  th:with="value=|Apartamentos: ${total_count}|"
+        th:text="${total_count} != null ? ${value}  : ''"></span>
+
+  <span id="apartment-query-count" th:with="value=|Items: ${query_count}|"
+        th:text="${query_count} != null ? ${value}  : ''"></span>
+</div>

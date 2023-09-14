@@ -3,6 +3,7 @@
   <select id="buildings-selector" name="building"
           hx-indicator=".htmx-indicator"
           hx-get="/dynamic/apartment-card"
+          hx-include="[name='q']"
           hx-target="#apartments-table-body">
     <option value> Seleccione</option>
     <option th:each="building: ${buildings}" th:attr="value=${building}" th:text="${building}"></option>

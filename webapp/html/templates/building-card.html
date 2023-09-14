@@ -13,11 +13,12 @@
     <span th:if="${building.email_config} != null" th:text="|Configuración de email ${building.email_config}|"></span>
     <span th:text="|Creado en: ${building.created_at}|"></span>
     <span th:if="${building.updated_at} != null" th:text="|Actualizado en: ${building.updated_at}|"></span>
-    <button th:if="${building.delete_item_url} != null" th:attr="hx-delete=${building.delete_item_url},hx-target=${'#' + card_id}"
+    <button class="delete-btn" th:if="${building.delete_item_url} != null"
+            th:attr="hx-delete=${building.delete_item_url},hx-target=${'#' + card_id}"
             hx-trigger="click"
             hx-swap="delete"
     >
-      DELETE
+      <img src="/assets/trash.svg" alt="delete-row">
     </button>
   </div>
 <!--  <div th:replace="fragments/next-page-fragment :: next-page-fragment"></div>-->

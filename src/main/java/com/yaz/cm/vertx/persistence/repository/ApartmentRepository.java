@@ -11,9 +11,12 @@ import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
 import io.vertx.sqlclient.impl.ArrayTuple;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,9 @@ public class ApartmentRepository {
   private static final String REPLACE_EMAIL = "REPLACE INTO apartment_emails (building_id, apt_number, email) VALUES (?, ?, ?);";
 
 
+  private static final String SELECT_ONE = "SELECT * FROM %s WHERE building_id = ? AND number = ?".formatted(
+      COLLECTION);
+  ;
   private static final String SELECT_FULL = """
       SELECT apartments.*, GROUP_CONCAT(apartment_emails.email) as emails
       from apartments
@@ -46,6 +52,9 @@ public class ApartmentRepository {
       ORDER BY apartments.building_id, apartments.number
       LIMIT ?;
       """;
+
+  private static final String SELECT_FULL_ONE = SELECT_FULL.formatted(
+      " WHERE apartments.building_id = ? AND apartments.number = ? ");
 
   private static final String SELECT_FULL_WITH_LIKE = """
       SELECT apartments.*, GROUP_CONCAT(apartment_emails.email) as emails
@@ -174,18 +183,18 @@ public class ApartmentRepository {
 
     final var stringBuilder = new StringBuilder();
     final var tupleSize = new AtomicInteger(1);
-    boolean ifCursorQuery = buildingId != null && number != null;
-    if (ifCursorQuery) {
+    final var ifCursorQuery = new AtomicBoolean(buildingId != null && number != null);
+    if (ifCursorQuery.get()) {
       stringBuilder.append(CURSOR_QUERY);
-
       tupleSize.addAndGet(2);
     }
 
     final var buildingOptional = Optional.ofNullable(query.building());
     buildingOptional.ifPresent(str -> {
-      if (ifCursorQuery) {
+      if (ifCursorQuery.get()) {
         stringBuilder.append(" AND ");
       }
+      ifCursorQuery.set(true);
       stringBuilder.append(" apartments.building_id = ? ");
       tupleSize.addAndGet(1);
     });
@@ -196,7 +205,7 @@ public class ApartmentRepository {
 
     qOptional
         .ifPresent(str -> {
-          if (ifCursorQuery) {
+          if (ifCursorQuery.get()) {
             stringBuilder.append(" AND ");
           }
           stringBuilder.append(LIKE_QUERY);
@@ -253,5 +262,23 @@ public class ApartmentRepository {
     }
 
     return Single.just(Optional.empty());
+  }
+
+  public Single<RowSet<Row>> findOneFull(String buildingId, String number) {
+    return mySqlService.request(MySqlQueryRequest.normal(SELECT_FULL_ONE, Tuple.of(buildingId, number, 1)));
+  }
+
+  public Apartment fromRowFull(Row row) {
+    final var emails = Arrays.stream(row.getString("emails").split(",")).collect(Collectors.toSet());
+
+    return Apartment.builder()
+        .buildingId(row.getString("building_id"))
+        .number(row.getString("number"))
+        .name(row.getString("name"))
+        .aliquot(row.getBigDecimal("aliquot"))
+        .createdAt(row.getLocalDateTime("created_at"))
+        .updatedAt(row.getLocalDateTime("updated_at"))
+        .emails(emails)
+        .build();
   }
 }

@@ -23,6 +23,7 @@ import lombok.extern.jackson.Jacksonized;
 public class RateQuery implements BasicQuery {
 
   private final long lastId;
+  private final String date;
   @Builder.Default
   private final SortOrder sortOrder = SortOrder.DESC;
   @Builder.Default

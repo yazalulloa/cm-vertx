@@ -1,3 +1,5 @@
+htmx.config.useTemplateFragments = true;
+
 window.onload = function() {
   const inputs = document.getElementsByTagName('input');
   console.log("inputs: {}", inputs.length);

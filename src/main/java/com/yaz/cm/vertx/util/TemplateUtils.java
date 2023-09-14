@@ -13,7 +13,7 @@ public class TemplateUtils {
         templateResolver.setPrefix(Constants.TEMPLATE_PREFIX);
         templateResolver.setSuffix(Constants.TEMPLATE_SUFFIX);
         engine.getThymeleafTemplateEngine().setTemplateResolver(templateResolver);
-        engine.getThymeleafTemplateEngine().setMessageResolver(new WebAppMessageResolver());
+        //engine.getThymeleafTemplateEngine().setMessageResolver(new WebAppMessageResolver());
 
        /* ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setPrefix(Constants.TEMPLATE_PREFIX);

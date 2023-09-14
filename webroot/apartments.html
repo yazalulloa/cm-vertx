@@ -13,11 +13,8 @@
 
 <div id="apartments" class="red-transition">
   <div class="header">
-    <div hx-get="/dynamic/apartment-counters"
-         hx-include="[name='building'], [name='q']"
-         hx-trigger="load, apt-counters-event from:body"
-         hx-swap="innerHTML">
 
+    <div id="apartment-counters">
     </div>
 
     <div hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load" hx-swap="outerHTML">
@@ -36,24 +33,26 @@
            hx-indicator=".htmx-indicator"
            placeholder="Buscar..."
     >
-
+    <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
   </div>
 
-  <table hx-indicator=".htmx-indicator" class="dfl-table">
-    <caption></caption>
-    <thead>
-    <tr>
-      <th>Edificio</th>
-      <th>Apto</th>
-      <th>Nombre</th>
-      <th>Emails</th>
-      <th>Alícuota</th>
-      <th>Acciones</th>
-    </thead>
-    <tbody id="apartments-table-body">
-    <tr hx-get="/dynamic/apartment-card" hx-trigger="load" hx-swap="outerHTML">
-    </tbody>
-  </table>
+  <div>
+    <table hx-indicator=".htmx-indicator" class="dfl-table">
+      <caption></caption>
+      <thead>
+      <tr>
+        <th>Edificio</th>
+        <th>Apto</th>
+        <th>Nombre</th>
+        <th>Emails</th>
+        <th>Alícuota</th>
+        <th>Acciones</th>
+      </thead>
+      <tbody id="apartments-table-body">
+      <tr hx-get="/dynamic/apartment-card" hx-trigger="load" hx-swap="outerHTML">
+      </tbody>
+    </table>
+  </div>
   <div>
     <img class="htmx-indicator center img-small-size" src="/assets/bars.svg" alt="spinner">
   </div>

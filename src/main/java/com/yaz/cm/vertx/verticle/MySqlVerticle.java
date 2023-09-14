@@ -90,7 +90,8 @@ public class MySqlVerticle extends BaseVerticle {
 
 
   private Single<RowSet<Row>> request(MySqlQueryRequest request) {
-    return vertxHandler().single(executeQuery(pool, request))
+    return Single.fromCallable(() -> executeQuery(pool, request))
+        .flatMap(vertxHandler()::single)
         .retryWhen(RetryWithDelay.retry(10, 100, TimeUnit.MILLISECONDS, throwable -> {
 
           if (throwable instanceof UnknownHostException) {
@@ -119,7 +120,7 @@ public class MySqlVerticle extends BaseVerticle {
           } else if (throwable instanceof ClosedConnectionException) {
             return true;
           }
-          logger.error("MYSQL_ERROR", throwable);
+          logger.error("MYSQL_ERROR {}", request.query(), throwable);
 
           return false;
         }, (retryCount, maxRetryCount) -> {

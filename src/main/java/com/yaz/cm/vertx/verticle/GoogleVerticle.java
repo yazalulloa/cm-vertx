@@ -5,13 +5,14 @@ import com.google.api.client.googleapis.auth.oauth2.GooglePublicKeysManager;
 import com.yaz.cm.vertx.domain.internal.Result;
 import com.yaz.cm.vertx.domain.internal.error.ResponseError;
 import com.yaz.cm.vertx.util.RandomUtil;
+import com.yaz.cm.vertx.util.rx.RetryWithDelay;
 import com.yaz.cm.vertx.vertx.BaseVerticle;
 import dagger.Lazy;
+import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +28,7 @@ public class GoogleVerticle extends BaseVerticle {
 
   @Override
   public void start() throws Exception {
-    eventBusFunction(VERIFY_TOKEN, this::verifyToken);
+    eventBusConsumer(VERIFY_TOKEN, this::verifyToken);
     eventBusSupplier(GET_SIGN_IN_CONFIG, this::getSignInConfig);
   }
 
@@ -57,16 +58,18 @@ public class GoogleVerticle extends BaseVerticle {
   }
 
 
-  public Result<JsonObject, ResponseError> verifyToken(String str) throws GeneralSecurityException, IOException {
+  public Single<Result<JsonObject, ResponseError>> verifyToken(String str) {
 
-    final var idToken = tokenVerifier().verify(str);
+    return Single.fromCallable(() -> {
+      final var idToken = tokenVerifier().verify(str);
 
-    if (idToken != null) {
-      final var payload = idToken.getPayload();
-      return Result.success(new JsonObject(Json.encode(payload)));
-    } else {
-      return Result.error(ResponseError.forbidden("invalid idToken"));
-    }
+      if (idToken != null) {
+        final var payload = idToken.getPayload();
+        return Result.success(new JsonObject(Json.encode(payload)));
+      } else {
+        return Result.<JsonObject, ResponseError>error(ResponseError.forbidden("invalid idToken"));
+      }
+    }).retryWhen(RetryWithDelay.retryIfFailedNetwork());
 
   }
 }

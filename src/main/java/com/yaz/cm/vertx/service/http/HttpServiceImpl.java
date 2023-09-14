@@ -43,11 +43,6 @@ public class HttpServiceImpl implements HttpService {
 
     return handler.<HttpClientResponse>get(HttpClientVerticle.SEND, request,
             new DeliveryOptions().setSendTimeout(timeUnit.toMillis(timeoutTime)))
-        .retryWhen(RetryWithDelay.retry(MAX_RETRY_COUNT, RETRY_TIME_DELAY, RETRY_TIME_UNIT_DELAY,
-            t -> ReflectionUtil.isInstanceOf(t, DnsNameResolverTimeoutException.class, UnknownHostException.class,
-                SSLException.class, SSLHandshakeException.class,
-                ProxyConnectException.class, NoRouteToHostException.class
-                //        , ConnectException.class
-            )));
+        .retryWhen(RetryWithDelay.retryIfFailedNetwork(MAX_RETRY_COUNT, RETRY_TIME_DELAY, RETRY_TIME_UNIT_DELAY));
   }
 }

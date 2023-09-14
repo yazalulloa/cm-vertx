@@ -17,6 +17,8 @@ import io.vertx.sqlclient.impl.ArrayTuple;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RateRepository {
 
   private static final String COLLECTION = "rates";
-  private static final String SELECT = "SELECT * FROM %s".formatted(COLLECTION);
+  private static final String SELECT = "SELECT * FROM %s %s ORDER BY id DESC LIMIT ?";
   private static final String DELETE_BY_ID = "DELETE FROM %s WHERE id = ?".formatted(COLLECTION);
   private static final String INSERT = """
       INSERT INTO rates (from_currency, to_currency, rate, date_of_rate, source, created_at, hash, etag, last_modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -49,32 +51,41 @@ public class RateRepository {
   }
 
   public Single<RowSet<Row>> listRows(RateQuery query) {
-    final var stringBuilder = new StringBuilder(SELECT);
+    final var stringBuilder = new StringBuilder();
 
-    final var lastId = query.lastId();
+    final var tupleSize = new AtomicInteger(1);
+    final var shouldSetAnd = new AtomicBoolean(false);
 
-    final var isLastIdFilter = lastId > 0;
-    if (isLastIdFilter) {
-      final var direction = query.sortOrder() == SortOrder.DESC ? "<" : ">";
-      stringBuilder.append(" WHERE id ").append(direction).append(" ?");
-    }
+    final var lastIdOptional = Optional.of(query.lastId())
+        .filter(l -> l > 0);
 
-    stringBuilder.append(" ORDER BY id ").append(query.sortOrder().name()).append(" LIMIT ?");
+    lastIdOptional
+        .ifPresent(str -> {
+          final var direction = query.sortOrder() == SortOrder.DESC ? "<" : ">";
+          stringBuilder.append(" id ").append(direction).append(" ?");
+          tupleSize.incrementAndGet();
+          shouldSetAnd.set(true);
+        });
 
-    var filterSize = 2;
-    if (isLastIdFilter) {
-      filterSize++;
-    }
+    Optional.ofNullable(query.date())
+        .ifPresent(str -> {
 
-    final var params = new ArrayTuple(filterSize);
-    if (isLastIdFilter) {
-      params.addValue(lastId);
-    }
+          if (shouldSetAnd.get()) {
+            stringBuilder.append(" AND ");
+          }
 
-    //params.addValue(query.sortOrder().name());
+          stringBuilder.append(" date_of_rate <= ?");
+          tupleSize.incrementAndGet();
+          shouldSetAnd.set(true);
+        });
+
+    final var params = new ArrayTuple(tupleSize.get());
+
+    lastIdOptional.ifPresent(params::addValue);
+    Optional.ofNullable(query.date()).ifPresent(params::addValue);
     params.addValue(query.limit());
 
-    final var queryRequest = MySqlQueryRequest.normal(stringBuilder.toString(), params);
+    final var queryRequest = MySqlQueryRequest.normal(SELECT.formatted(COLLECTION, stringBuilder.isEmpty() ? "" : "WHERE " + stringBuilder), params);
 
     return mySqlService.request(queryRequest);
   }

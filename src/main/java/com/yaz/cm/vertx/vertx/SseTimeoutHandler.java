@@ -4,7 +4,9 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.PlatformHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SseTimeoutHandler implements PlatformHandler {
 

@@ -27,4 +27,12 @@ public class StringUtil {
         .filter(s -> !s.isEmpty())
         .orElse(null);
   }
+
+  public static String validLocalDate(String str) {
+    return Optional.ofNullable(str)
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .filter(DateUtil::isValidLocalDate)
+        .orElse(null);
+  }
 }

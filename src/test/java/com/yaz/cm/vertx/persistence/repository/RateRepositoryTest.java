@@ -1,6 +1,10 @@
-package com.yaz.cm.vertx.service;
+package com.yaz.cm.vertx.persistence.repository;
 
-import com.yaz.cm.vertx.persistence.domain.ApartmentQuery;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.yaz.cm.vertx.persistence.domain.BuildingQuery;
+import com.yaz.cm.vertx.persistence.domain.RateQuery;
+import com.yaz.cm.vertx.util.SqlUtil;
 import di.TestComponent;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -11,9 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(VertxExtension.class)
 @Slf4j
-class ApartmentServiceTest {
+@ExtendWith(VertxExtension.class)
+class RateRepositoryTest {
 
   private static TestComponent component;
 
@@ -29,10 +33,12 @@ class ApartmentServiceTest {
 
   @Test
   void list() throws InterruptedException {
-    final var service = component.apartmentService();
+    final var repository = component.rateRepository();
 
-    final var testObserver = service.list(ApartmentQuery.builder().build())
-        .doOnSuccess(l -> log.info("LIST {}", l.size()))
+    final var testObserver = repository.listRows(RateQuery.builder()
+            .lastId(304)
+            .build())
+        .doOnSuccess(SqlUtil::print)
         .test();
 
     testObserver.await(5, TimeUnit.MINUTES);
@@ -42,17 +48,6 @@ class ApartmentServiceTest {
         .assertNoErrors();
   }
 
-  @Test
-  void findOneFull() throws InterruptedException {
-    final var service = component.apartmentService();
 
-    final var testObserver = service.findOneFull("MENDI", "04-C")
-        .doOnSuccess(l -> log.info("{}", l))
-        .test();
 
-    testObserver.await(5, TimeUnit.MINUTES);
-    testObserver
-        .assertComplete()
-        .assertNoErrors();
-  }
 }

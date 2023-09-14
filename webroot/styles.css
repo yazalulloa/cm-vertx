@@ -103,6 +103,12 @@
   width: 100%;
 }
 
+.dfl-table th {
+  position: sticky;
+  top: 0;
+  background-color: #F9F8F8;
+}
+
 td, th {
   border: 1px solid #dddddd;
   text-align: center;
@@ -122,4 +128,14 @@ tr:nth-child(even) {
   flex-wrap: wrap;
   flex-direction: row;
   gap: 12px;
+  text-align: center;
+  padding: 6px;
+}
+
+.google-login-btn {
+  text-align: center;
+  gap: 12px;
+  width: 80px;
+  height: 80px;
+  background-color: blue;
 }

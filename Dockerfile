@@ -1,4 +1,4 @@
-FROM maven:3.9.1-amazoncorretto-20-debian as build
+FROM maven:3.9.1-amazoncorretto-20-debian AS build
 
 WORKDIR /app
 COPY pom.xml .

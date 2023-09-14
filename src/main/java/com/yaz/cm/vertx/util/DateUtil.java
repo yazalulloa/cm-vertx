@@ -1,11 +1,15 @@
 package com.yaz.cm.vertx.util;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.MonthDay;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import org.apache.commons.lang3.StringUtils;
 
 public class DateUtil {
 
@@ -32,4 +36,40 @@ public class DateUtil {
   public static String formatVe(ZonedDateTime zonedDateTime) {
     return format(zonedDateTime.withZoneSameInstant(VE_ZONE));
   }
+
+  public static boolean isValidLocalDate(String str) {
+    if (str == null) {
+      return false;
+    }
+
+    if (str.length() != 10) {
+      return false;
+    }
+
+    final var split = str.split("-");
+    if (split.length != 3) {
+      return false;
+    }
+
+    final var isNumeric = StringUtils.isNumeric(split[0])
+        && StringUtils.isNumeric(split[1])
+        && StringUtils.isNumeric(split[2]);
+
+    if (!isNumeric) {
+      return false;
+    }
+
+    final var year = Integer.parseInt(split[0]);
+    final var monthInt = Integer.parseInt(split[1]);
+    final var day = Integer.parseInt(split[2]);
+
+    final var isValidYear = ChronoField.YEAR.range().isValidValue(year);
+    final var isValidMonth = ChronoField.MONTH_OF_YEAR.range().isValidValue(monthInt);
+    final var isValidDay = ChronoField.DAY_OF_MONTH.range().isValidValue(day);
+    final var isValidDayMonth = MonthDay.of(monthInt, 1).range(ChronoField.DAY_OF_MONTH).isValidValue(day);
+
+    return isValidYear && isValidMonth && isValidDay && isValidDayMonth;
+  }
+
+
 }

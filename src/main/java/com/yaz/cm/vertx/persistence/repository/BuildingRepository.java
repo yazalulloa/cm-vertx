@@ -65,8 +65,7 @@ public class BuildingRepository {
     }
 
     params.addValue(query.limit());
-
-    log.info("QUERY {}", stringBuilder);
+    
     final var queryRequest = MySqlQueryRequest.normal(stringBuilder.toString(), params);
 
     return mySqlService.request(queryRequest);

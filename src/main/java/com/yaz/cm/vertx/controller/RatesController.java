@@ -6,14 +6,15 @@ import com.yaz.cm.vertx.persistence.domain.RateQuery;
 import com.yaz.cm.vertx.service.RateService;
 import com.yaz.cm.vertx.util.ConvertUtil;
 import com.yaz.cm.vertx.util.DateUtil;
+import com.yaz.cm.vertx.util.StringUtil;
 import com.yaz.cm.vertx.verticle.service.bcv.SaveNewBcvRate;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.sqlclient.data.Numeric;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -83,9 +84,14 @@ public class RatesController implements DataContextProvider {
         .map(Long::parseLong)
         .orElse(0L);
 
+    final var date = StringUtil.validLocalDate(ctx.queryParams().get("date"));
+
     final var rateQuery = RateQuery.builder()
         .lastId(lastId)
+        .date(date)
         .build();
+
+    log.info(rateQuery.toString());
 
     final var actualLimit = rateQuery.limit() + 1;
     final var build = rateQuery.toBuilder()
@@ -94,8 +100,19 @@ public class RatesController implements DataContextProvider {
 
     return paging(build)
         .map(paging -> templateService.data(actualLimit, paging,
-            map -> map.put("delete_item_url", "/api/rates/" + map.get("id")),
-            map -> "?last_id=" + map.get("id").toString()))
+            map -> {
+              map.put("delete_item_url", "/api/rates/" + map.get("id"));
+              final var rate = (Numeric) map.get("rate");
+              map.put("rate", rate.doubleValue());
+            },
+            map -> {
+              var queryParams = "?last_id=" + map.get("id").toString();
+              if (date != null) {
+                queryParams += "&date=" + date;
+              }
+
+              return queryParams;
+            }))
         .doOnSuccess(data -> {
           Optional.ofNullable(data.get("next_page_url"))
               .map(str -> "/dynamic/rate-card" + str)

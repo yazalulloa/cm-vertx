@@ -81,6 +81,43 @@ public class RouterProvider {
 
     final var csrfHeaderName = CSRFHandler.DEFAULT_HEADER_NAME;
 
+   /* final var allowedHeaders = Stream.of(
+            HttpHeaders.ACCEPT,
+            HttpHeaders.ACCEPT_LANGUAGE,
+            HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+            HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+            HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+            HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+            HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+            //HttpHeaders.ACCESS_CONTROL_MAX_AGE,
+            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS,
+            HttpHeaders.AUTHORIZATION,
+            HttpHeaders.CACHE_CONTROL,
+            HttpHeaders.CONNECTION,
+            HttpHeaders.CONTENT_DISPOSITION,
+            HttpHeaders.CONTENT_ENCODING,
+            HttpHeaders.CONTENT_LANGUAGE,
+            HttpHeaders.CONTENT_TYPE,
+            HttpHeaders.COOKIE,
+            HttpHeaders.ETAG,
+            HttpHeaders.EXPIRES,
+            HttpHeaders.IF_MATCH,
+            HttpHeaders.IF_MODIFIED_SINCE,
+            HttpHeaders.IF_NONE_MATCH,
+            HttpHeaders.LAST_MODIFIED,
+            HttpHeaders.LOCATION,
+            HttpHeaders.ORIGIN,
+            HttpHeaders.REFERER,
+            HttpHeaders.KEEP_ALIVE,
+            HttpHeaders.UPGRADE,
+            HttpHeaders.VARY,
+            "x-requested-with",
+            "Last-Event-ID",
+            csrfHeaderName
+        )
+        .map(CharSequence::toString)
+        .collect(Collectors.toSet());*/
+
     final var corsHandler = CorsHandler.create()
         .addOrigin(origin)
         .addOrigin(GoogleUrls.ACCOUNTS)
@@ -98,7 +135,10 @@ public class RouterProvider {
         .allowedHeader("Origin")
         .allowedHeader("origin")
         .allowedHeader("Referrer")
+        .allowedHeader("Referer")
         .allowedHeader("Authorization")
+        .allowedHeader("x-requested-with")
+        .allowedHeader(HttpHeaders.VARY.toString())
         .allowedHeader(csrfHeaderName);
 
     final var csrfHandler = CSRFHandler.create(vertx, "6E6CgNwDJzNHLqP9w5F7")
@@ -134,17 +174,21 @@ public class RouterProvider {
       ctx.next();
     };
 
+    router.route().handler(addHeadersHandler);
+
     router.route("/metrics").handler(PrometheusScrapingHandler.create());
 
     //router.route(googleCallback).handler(loginController::googleRedirect);
 
     final var loginRoute = "/login";
+
+    final var redirectAuthHandler = RedirectAuthHandler.create(authProvider, loginRoute);
   /*  router.get(loginRoute)
         .handler(loginService::loginPage);*/
     final var loginHandler = router.route(loginRoute)
         .handler(authHandler);
 
-    router.route().handler(addHeadersHandler);
+
 
     googleCallbackRoute.failureHandler(ctx -> {
       log.info("googleCallback {}", googleCallback, ctx.failure());
@@ -154,8 +198,8 @@ public class RouterProvider {
     loginHandler.handler(loginService::login);
 
     if (EnvUtil.bool("AUTH_REDIRECT_ENABLE")) {
-      router.route("/").handler(RedirectAuthHandler.create(authProvider, loginRoute));
-      router.route("/*").handler(RedirectAuthHandler.create(authProvider, loginRoute));
+      router.route("/").handler(redirectAuthHandler);
+      router.route("/*").handler(redirectAuthHandler);
     }
 
     router.route().handler(csrfHandler);
@@ -198,7 +242,6 @@ public class RouterProvider {
     };
 
     final var dataRateController = new DataController(ratesController);
-    router.get("/dynamic/rates").handler(dataRateController);
     router.get("/dynamic/rate-card").handler(dataRateController);
 
     final var dataBuildingController = new DataController(buildingController);

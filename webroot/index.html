@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <title>Condominium Manager</title>
   <link href="styles.css" rel="stylesheet"/>
-  <script src="js/htmx.js"></script>
-  <script src="js/sse.js"></script>
+  <script src="js/htmx.js" defer></script>
+  <script src="js/sse.js" defer></script>
   <script src="js/index.js" defer></script>
 </head>
 <body>
 
-<div id="main">
-  <div hx-ext="sse" sse-connect="/sse/new_rate">
-      <div id="rates-table" class="original-state" hx-get="/dynamic/rates" hx-trigger="load" hx-swap="outerHTML">
-        <img class="htmx-indicator center img-small-size" src="/assets/bars.svg" alt="spinner">
-    </div>
-  </div>
+<div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="buildings.html">Edificios</a>
+    <a href="apartments.html">Apartamentos</a>
+    <a href="rates.html">Tasas de cambio</a>
+  </nav>
 </div>
-
 </body>
 </html>

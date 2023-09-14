@@ -44,15 +44,15 @@ public class ApartmentController implements DataContextProvider {
 
   public Single<Paging<JsonObject>> paging(ApartmentQuery query) {
 
-    return service.listJson(query)
-        .map(list -> {
-          list
+    return service.pagingJson(query)
+        .map(paging -> {
+          paging.results()
               .forEach(jsonObject -> {
                 ConvertUtil.formatDate("created_at", jsonObject);
                 ConvertUtil.formatDate("updated_at", jsonObject);
               });
 
-          return new Paging<>(null, null, list);
+          return paging;
         });
   }
 
@@ -103,10 +103,10 @@ public class ApartmentController implements DataContextProvider {
         .limit(actualLimit)
         .build();
 
-    if (!isNotFirstPage && (q != null || building != null)) {
+   /* if (!isNotFirstPage && (q != null || building != null)) {
       log.info("header set");
       ctx.response().putHeader("HX-Trigger", "apt-counters-event");
-    }
+    }*/
 
     return paging(build)
         .map(paging -> templateService.data(actualLimit, paging,

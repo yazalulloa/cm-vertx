@@ -4,6 +4,7 @@ import com.yaz.cm.vertx.domain.internal.Result;
 import com.yaz.cm.vertx.domain.internal.error.ResponseError;
 import com.yaz.cm.vertx.persistence.domain.GoogleUserData;
 import com.yaz.cm.vertx.service.http.HttpService;
+import com.yaz.cm.vertx.util.rx.RetryWithDelay;
 import com.yaz.cm.vertx.verticle.GoogleVerticle;
 import com.yaz.cm.vertx.vertx.VertxHandler;
 import io.reactivex.rxjava3.core.Single;
@@ -38,7 +39,8 @@ public class LoginService {
 
     //log.info("USER {} \nPRINCIPAL {} \nattr {}", user, principal.encodePrettily(), attributes.encodePrettily());
 
-    final var userInfoSingle = vertxHandler.single(authProvider.userInfo(ctx.user()));
+    final var userInfoSingle = vertxHandler.single(authProvider.userInfo(ctx.user()))
+        .retryWhen(RetryWithDelay.retryIfFailedNetwork());
 
     final var tokenSingle = vertxHandler.<Result<JsonObject, ResponseError>>get(GoogleVerticle.VERIFY_TOKEN, idToken);
 

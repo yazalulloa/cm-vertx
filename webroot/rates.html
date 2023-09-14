@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tasas de cambio</title>
+  <link href="styles.css" rel="stylesheet"/>
+  <script src="js/htmx.js"></script>
+  <script src="js/sse.js"></script>
+  <script src="js/index.js" defer></script>
+</head>
+<body>
+<div id="main">
+  <div hx-ext="sse" sse-connect="/sse/new_rate">
+
+    <div>
+      <div class="header">
+        <span id="rates-total-counter" th:text="|Tasas: ${total_count}|"></span>
+        <button hx-get="/api/rates/bcv-lookup">
+          GET LAST RATE
+        </button>
+        <label for="date"></label>
+        <input id="date" type="date" name="date"
+               hx-get="/dynamic/rate-card"
+               hx-trigger="change"
+               hx-target="#rates"
+               hx-swap="innerHTML"
+               hx-indicator=".htmx-indicator"
+          >
+          <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
+      </div>
+
+      <div id="rates" class="original-state" hx-get="/dynamic/rate-card" hx-trigger="load, sse:new_rate"
+           hx-swap="innerHTML">
+      </div>
+      <img class="htmx-indicator center img-small-size" src="/assets/bars.svg" alt="spinner">
+    </div>
+  </div>
+</div>
+</body>
+</html>
