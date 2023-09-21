@@ -3,18 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Apartamentos</title>
-  <link href="styles.css" rel="stylesheet"/>
-  <script src="js/htmx.js"></script>
-  <script src="js/sse.js"></script>
-  <script src="js/hyperscript.js"></script>
-  <script src="js/index.js" defer></script>
+  <link href="output.css" rel="stylesheet"/>
+  <script src="out/js/index.js" defer></script>
 </head>
 <body>
 
-<div id="apartments" class="red-transition">
+<div id="apartments" class="">
   <div class="header">
 
-    <div id="apartment-counters">
+    <div class="header" id="apartment-counters">
     </div>
 
     <div hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load" hx-swap="outerHTML">
@@ -24,20 +21,21 @@
     </div>
 
     <label for="apt-search-input"></label>
-    <input id="apt-search-input" type="search" name="q" required="required"
+    <input class="input input-bordered w-full max-w-xs" id="apt-search-input" type="search" name="q" required="required"
            hx-get="/dynamic/apartment-card"
            hx-include="[name='building']"
-           hx-trigger="keyup changed delay:700ms, search"
+           hx-trigger="keyup changed delay:600ms, search"
            hx-target="#apartments-table-body"
            hx-swap="innerHTML"
            hx-indicator=".htmx-indicator"
            placeholder="Buscar..."
     >
+
     <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
   </div>
 
-  <div>
-    <table hx-indicator=".htmx-indicator" class="dfl-table">
+  <div class="overflow-x-auto">
+    <table hx-indicator=".htmx-indicator" class="table table-pin-rows dfl-table">
       <caption></caption>
       <thead>
       <tr>

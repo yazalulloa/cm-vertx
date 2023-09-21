@@ -1,4 +1,4 @@
-<tr class="table-row" th:each="apt: ${results}"
+<tr class="hover" th:each="apt: ${results}"
     th:with="card_id=|apt-card-${apt.building_id}-${apt.number}|"
     th:attr="id=${card_id}"
 
@@ -28,8 +28,8 @@
     hx-swap="outerHTML">
 </tr>
 
-<div id="apartment-counters" hx-swap-oob="true">
-  <span id="apartment-total-count"  th:with="value=|Apartamentos: ${total_count}|"
+<div class="header" id="apartment-counters" hx-swap-oob="true">
+  <span id="apartment-total-count" th:with="value=|Apartamentos: ${total_count}|"
         th:text="${total_count} != null ? ${value}  : ''"></span>
 
   <span id="apartment-query-count" th:with="value=|Items: ${query_count}|"

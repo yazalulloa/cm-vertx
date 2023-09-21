@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Tasas de cambio</title>
-  <link href="styles.css" rel="stylesheet"/>
-  <script src="js/htmx.js"></script>
-  <script src="js/sse.js"></script>
-  <script src="js/index.js" defer></script>
+  <link href="output.css" rel="stylesheet"/>
+  <script src="out/js/index.js" defer></script>
 </head>
 <body>
 <div id="main">
@@ -15,18 +13,20 @@
     <div>
       <div class="header">
         <span id="rates-total-counter" th:text="|Tasas: ${total_count}|"></span>
-        <button hx-get="/api/rates/bcv-lookup">
+        <button class="btn btn-primary" hx-get="/api/rates/bcv-lookup"
+                hx-indicator=".htmx-indicator">
           GET LAST RATE
         </button>
         <label for="date"></label>
-        <input id="date" type="date" name="date"
+        <input class="datepicker" id="date" type="date" name="date"
+               data-te-datepicker
                hx-get="/dynamic/rate-card"
                hx-trigger="change"
                hx-target="#rates"
                hx-swap="innerHTML"
-               hx-indicator=".htmx-indicator"
-          >
-          <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
+               hx-indicator=".htmx-indicator">
+
+        <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
       </div>
 
       <div id="rates" class="original-state" hx-get="/dynamic/rate-card" hx-trigger="load, sse:new_rate"

@@ -1,6 +1,7 @@
 package com.yaz.cm.vertx;
 
 import com.yaz.cm.vertx.controller.ApartmentController;
+import com.yaz.cm.vertx.controller.AppInfoController;
 import com.yaz.cm.vertx.controller.BuildingController;
 import com.yaz.cm.vertx.controller.DataController;
 import com.yaz.cm.vertx.controller.LoginController;
@@ -16,6 +17,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.auth.oauth2.OAuth2Auth;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.HealthChecks;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.common.template.TemplateEngine;
@@ -58,9 +62,18 @@ public class RouterProvider {
   private final RatesController ratesController;
   private final BuildingController buildingController;
   private final ApartmentController apartmentController;
+  private final AppInfoController appInfoController;
   private final LoginController loginController;
 
   public Router router() {
+
+    final var healthChecks = HealthChecks.create(vertx);
+    healthChecks.register(
+        "my-procedure",
+        promise -> promise.complete(Status.OK()));
+
+    final var healthCheckHandler = HealthCheckHandler.createWithHealthChecks(healthChecks);
+
     final var router = Router.router(vertx);
 
     final var origin = System.getenv("ORIGIN");
@@ -164,18 +177,19 @@ public class RouterProvider {
         .handler(FaviconHandler.create(vertx))
         .handler(corsHandler)
         .handler(HSTSHandler.create())
-        .handler(new CspHandlerProvider().cspHandler())
+        //.handler(new CspHandlerProvider().cspHandler())
         .handler(XFrameHandler.create(XFrameHandler.SAMEORIGIN))
         .handler(BodyHandler.create(false));
 
     SecurityPolicyHandler addHeadersHandler = ctx -> {
-      ctx.response().putHeader(HttpHeaders.REFERER, "strict-origin-when-cross-origin");
+      ctx.response().putHeader("Referrer-Policy", "strict-origin-when-cross-origin");
       ctx.response().putHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
       ctx.next();
     };
 
     router.route().handler(addHeadersHandler);
 
+    router.get("/health*").handler(healthCheckHandler);
     router.route("/metrics").handler(PrometheusScrapingHandler.create());
 
     //router.route(googleCallback).handler(loginController::googleRedirect);
@@ -187,8 +201,6 @@ public class RouterProvider {
         .handler(loginService::loginPage);*/
     final var loginHandler = router.route(loginRoute)
         .handler(authHandler);
-
-
 
     googleCallbackRoute.failureHandler(ctx -> {
       log.info("googleCallback {}", googleCallback, ctx.failure());
@@ -221,7 +233,8 @@ public class RouterProvider {
     });
 
     sseHandler.closeHandler(connection -> {
-      // the same connection object as in the connect handler
+      final var path = connection.ctx().request().path().replace(ssePath, "");
+
     });
 
     router.get("/api/rates/bcv-lookup").handler(ratesController::bcvLookUp);
@@ -254,8 +267,29 @@ public class RouterProvider {
     router.get("/dynamic/apartment-card").handler(dataApartmentController);
     router.get("/dynamic/apartment-counters").handler(apartmentController::counters);
     router.get("/dynamic/apartment-total-count").handler(apartmentController::totalCount);
+
+    final var dataAppInfoController = new DataController(appInfoController);
+    router.get("/dynamic/app-info").handler(dataAppInfoController);
+
     router.route("/dynamic/*").handler(disableCacheHandler);
 
+    router.route("/*").handler(ctx -> {
+
+      final var path = ctx.request().path();
+
+      if (path.isEmpty() || path.endsWith("/")) {
+        ctx.next();
+        return;
+      }
+
+      final var indexOfDot = path.lastIndexOf(".");
+      if (indexOfDot == -1) {
+        ctx.reroute(path + ".html");
+      } else {
+        ctx.next();
+      }
+
+    });
     router.route("/*").handler(StaticHandler.create().setCachingEnabled(cacheEnabled));
     return router;
   }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apartamento</title>
+  <link href="output.css" rel="stylesheet"/>
+  <script src="js/htmx.js"></script>
+  <script src="js/sse.js"></script>
+  <script src="js/hyperscript.js"></script>
+  <script src="js/index.js" defer></script>
+</head>
+<body>
+
+<div>
+  <form class="apt-form" hx-post="/test">
+    <div hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load" hx-swap="outerHTML">
+      <label for="buildings-selector"></label>
+      <select id="buildings-selector" name="building">
+      </select>
+    </div>
+
+    <label>
+      <input type="text" name="number" required="required"
+             placeholder="Nro. Apt" maxlength="20">
+    </label>
+
+    <label>
+      <input type="text" name="name" required="required"
+             placeholder="Nombre" maxlength="100">
+    </label>
+
+    <label>
+      <input type="number" name="aliqout" required="required"
+             placeholder="Alícuota" maxlength ="5"  min="1"  step="1" >
+    </label>
+
+    <label>
+      <input type="email" name="emails" required="required"
+             placeholder="Emails" maxlength="320" multiple>
+    </label>
+  </form>
+</div>
+</body>
+</html>
