@@ -1,7 +1,5 @@
 FROM maven:3.9.1-amazoncorretto-20-debian AS build
 
-# bun tailwindcss -i ./webroot/styles.css -o ./webroot/output.css --watch
-
 WORKDIR /app
 COPY pom.xml .
 RUN mvn clean package -Dmaven.test.skip  && rm -r target

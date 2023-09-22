@@ -13,6 +13,18 @@ public class EnvUtil {
   private EnvUtil() {
   }
 
+  public static int getInt(String key, int dflt) {
+    return Optional.ofNullable(System.getenv(key))
+        .map(str -> {
+          try {
+            return Integer.parseInt(str);
+          } catch (Exception e) {
+            return null;
+          }
+        })
+        .orElse(dflt);
+  }
+
   public static boolean bool(String key) {
     return Optional.ofNullable(System.getenv(key))
         .map(str -> {

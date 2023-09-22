@@ -1,5 +1,6 @@
 package com.yaz.cm.vertx.verticle;
 
+import com.yaz.cm.vertx.util.EnvUtil;
 import io.netty.handler.codec.compression.StandardCompressionOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -19,7 +20,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     final var httpServerOptions = new HttpServerOptions()
-        .setPort(8888)
+        .setPort(EnvUtil.getInt("PORT", 8888))
         .setLogActivity(false)
         .setTcpKeepAlive(true)
         .setSsl(false)
