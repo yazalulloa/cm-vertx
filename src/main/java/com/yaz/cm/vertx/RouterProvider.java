@@ -154,7 +154,7 @@ public class RouterProvider {
         .allowedHeader(HttpHeaders.VARY.toString())
         .allowedHeader(csrfHeaderName);
 
-    final var csrfHandler = CSRFHandler.create(vertx, "6E6CgNwDJzNHLqP9w5F7")
+    final var csrfHandler = CSRFHandler.create(vertx, System.getenv("CSRF_SECRET"))
         //.setOrigin(origin)
         .setHeaderName(csrfHeaderName);
 
