@@ -16,6 +16,8 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   private final Router router;
 
+  private static volatile boolean logged = false;
+
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
@@ -35,7 +37,10 @@ public class HttpServerVerticle extends AbstractVerticle {
         .requestHandler(router)
         .listen(http -> {
           if (http.succeeded()) {
-            //log.info("HTTP server started on port 8888");
+            if (!logged) {
+              logged = true;
+              log.info("HTTP server started on port {}", http.result().actualPort());
+            }
             startPromise.complete();
           } else {
             log.error("Error starting HTTP server", http.cause());

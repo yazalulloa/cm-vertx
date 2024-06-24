@@ -14,11 +14,25 @@
     <div class="header" id="apartment-counters">
     </div>
 
-    <div hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load" hx-swap="outerHTML">
-      <label for="buildings-selector"></label>
-      <select id="buildings-selector" name="building">
-      </select>
+    <div hidden="hidden"
+         hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load"
+         hx-target="#apt-search-buildings-selector"
+         hx-swap="outerHTML">
+
     </div>
+
+    <label>
+
+      <select class="select" name="building" required="required"
+              hx-indicator=".htmx-indicator"
+              hx-get="/dynamic/apartment-card"
+              hx-include="[name='q']"
+              hx-target="#apartments-table-body">
+        <option value> Seleccione</option>
+
+        <option id="apt-search-buildings-selector"></option>
+      </select>
+    </label>
 
     <label for="apt-search-input"></label>
     <input class="input input-bordered w-full max-w-xs" id="apt-search-input" type="search" name="q" required="required"
@@ -30,6 +44,8 @@
            hx-indicator=".htmx-indicator"
            placeholder="Buscar..."
     >
+
+    <button id="toggle-form-btn" class="btn btn-primary">Nuevo</button>
 
     <img class="htmx-indicator" src="/assets/bars.svg" alt="spinner">
   </div>
@@ -54,6 +70,45 @@
   <div>
     <img class="htmx-indicator center img-small-size" src="/assets/bars.svg" alt="spinner">
   </div>
+</div>
+
+<div id="apt-form-container" class="bg-current">
+  <div class="header">
+    <span>Nuevo Apartamento</span>
+    <button id="close-apt-form">
+      <img src="/assets/cross-svgrepo-com.svg" alt="close-form">
+    </button>
+  </div>
+  <form class="apt-form" hx-post="/test">
+    <div>
+      <label>
+        <select class="select" name="building" required="required">
+          <option hx-get="/dynamic/buildings-selector" hx-indicator=".htmx-indicator" hx-trigger="load"
+                  hx-swap="outerHTML"></option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      <input class="form-field" type="text" name="number" required="required"
+             placeholder="Nro. Apt" maxlength="20">
+    </label>
+
+    <label>
+      <input class="form-field" type="text" name="name" required="required"
+             placeholder="Nombre" maxlength="100">
+    </label>
+
+    <label>
+      <input class="form-field" type="number" name="aliqout" required="required"
+             placeholder="Alícuota" maxlength="5" min="1" step="1">
+    </label>
+
+    <label>
+      <input class="form-field" type="email" name="emails" required="required"
+             placeholder="Emails" maxlength="320" multiple>
+    </label>
+  </form>
 </div>
 
 </body>

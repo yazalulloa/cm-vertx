@@ -27,8 +27,8 @@ public class MySqlVerticle extends BaseVerticle {
 
   public static final String GET_TABLES = address("mysql-get-tables");
 
-  public static final String REQUEST = address("mysql-request");
-  public static final String TRANSACTION = address("mysql-trx");
+  public static final String REQUEST = "mysql-request";
+  public static final String TRANSACTION = "mysql-trx";
 
   private MySQLPool pool;
 
@@ -40,7 +40,7 @@ public class MySqlVerticle extends BaseVerticle {
     eventBusConsumer(TRANSACTION, this::transaction);
     //eventBusConsumerEmptyBody(GET_TABLES, this::getTables);
     vertx.setTimer(TimeUnit.SECONDS.toMillis(3), l -> {
-      subscribe(showMetadata());
+      //subscribe(showMetadata());
     });
   }
 

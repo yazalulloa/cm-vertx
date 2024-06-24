@@ -42,7 +42,7 @@ public class HttpClientVerticle extends BaseVerticle {
 
     webClient = WebClient.create(vertx, new WebClientOptions(config()));
 
-    final var trustAllWebClientOptions = new WebClientOptions(config())
+    final var trustAllWebClientOptions = new WebClientOptions()
         .setTrustAll(true)
         .setVerifyHost(false);
 

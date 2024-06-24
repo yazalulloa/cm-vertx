@@ -177,7 +177,11 @@ public class FileUtil {
 
         Objects.requireNonNull(size, "size");
 
-        for (UnitSizeTuple(String unit, BigDecimal divisor) : UNIT_SIZE_TUPLES) {
+        for (UnitSizeTuple tuple : UNIT_SIZE_TUPLES) {
+            final var divisor = tuple.size;
+            final var unit = tuple.unit;
+//        }
+//        for (UnitSizeTuple(String unit, BigDecimal divisor) : UNIT_SIZE_TUPLES) {
             if (DecimalUtil.lessThan(divisor, size)) {
                 final var quotient = size.divide(divisor, 4, RoundingMode.HALF_UP);
                 if (DecimalUtil.greaterThan(quotient, BigDecimal.ONE)) {

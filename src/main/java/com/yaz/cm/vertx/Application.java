@@ -3,6 +3,7 @@ package com.yaz.cm.vertx;
 import com.yaz.cm.vertx.di.AppModule;
 import com.yaz.cm.vertx.di.DaggerApplicationComponent;
 import com.yaz.cm.vertx.di.VertxModule;
+import com.yaz.cm.vertx.util.Constants;
 import com.yaz.cm.vertx.util.ConvertUtil;
 import com.yaz.cm.vertx.util.EnvUtil;
 import com.yaz.cm.vertx.util.FileUtil;
@@ -20,11 +21,11 @@ public class Application {
   public static void main(String[] args) throws IOException {
     log.info("STARTING");
     EnvUtil.saveAppStartedAt();
-    NetworkUtil.showPublicIp();
+    //NetworkUtil.showPublicIp();
 
-    Files.createDirectories(Paths.get("config"));
-    FileUtil.writeEnvToFile("CONFIG_FILE", "config/config.yml");
-
+    //Files.createDirectories(Paths.get("config"));
+    //FileUtil.writeEnvToFile("CONFIG_FILE", "config/config.yml");
+    // Files.deleteIfExists(Paths.get("%s/%s".formatted(Constants.STATIC_DIR, Constants.TEMPLATE_TMP_DIR)));
 
     if (EnvUtil.isShowDir()) {
       FileUtil.showDir();
@@ -44,12 +45,14 @@ public class Application {
         .appModule(new AppModule("assets/i18n"))
         .build();
 
+    vertx.fileSystem().deleteRecursive("%s/%s".formatted(Constants.STATIC_DIR, Constants.TEMPLATE_TMP_DIR), true);
+
     applicationComponent.verticleDeployer().deploy()
         .onSuccess(v -> {
           final var appStartedAt = EnvUtil.getAppStartedAt();
           final var duration = ConvertUtil.formatDuration(appStartedAt);
 
-          log.info("STARTED {} {}ms", duration, System.currentTimeMillis() - appStartedAt);
+          log.info("STARTED {}ms", System.currentTimeMillis() - appStartedAt);
 
         })
         .onFailure(t -> {

@@ -13,6 +13,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.oauth2.OAuth2Auth;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.common.template.TemplateEngine;
+import io.vertx.ext.web.handler.RedirectAuthHandler;
+import java.util.Optional;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +82,11 @@ public class LoginService {
             ctx.response().setStatusCode(result.error().httpCode())
                 .end(result.error().responseMsg());
           } else {
-            ctx.redirect("/");
+            final var url = Optional.ofNullable(ctx.session().get(RedirectAuthHandler.DEFAULT_RETURN_URL_PARAM))
+                .map(Object::toString)
+                .orElse("/");
+
+            ctx.redirect(url);
           }
         }, ctx::fail);
 

@@ -5,10 +5,9 @@ import com.yaz.cm.vertx.persistence.domain.BuildingQuery;
 import com.yaz.cm.vertx.persistence.entity.Building;
 import com.yaz.cm.vertx.persistence.repository.BuildingRepository;
 import com.yaz.cm.vertx.util.SqlUtil;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.json.JsonObject;
-import io.vertx.sqlclient.Row;
-import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
@@ -51,14 +50,8 @@ public class BuildingService {
   public Single<List<String>> ids() {
 
     return repository.selectAllIds()
-        .map(rows -> {
-
-          final var list = new ArrayList<String>();
-          for (Row row : rows) {
-            list.add(row.getString("id"));
-          }
-
-          return list;
-        });
+        .flatMapObservable(Observable::fromIterable)
+        .map(row -> row.getString("id"))
+        .toList();
   }
 }

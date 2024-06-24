@@ -4,12 +4,13 @@ import {
   initTE,
   Input,
   Select,
+  Sidenav,
   Timepicker
 } from "tw-elements";
 import './loader.js';
 import './sse.js';
 
-initTE({Carousel, Datepicker, Select, Timepicker, Input}, true); // set second parameter to true if you want to use a debugger
+initTE({Carousel, Datepicker, Select, Timepicker, Input, Sidenav}, true); // set second parameter to true if you want to use a debugger
 
 htmx.config.useTemplateFragments = true;
 
@@ -69,51 +70,112 @@ function closeNav() {
   document.getElementById("main").style.marginLeft = "0";
 }
 
-const datepickerTranslated = new Datepicker(
-    document.querySelector("#datepicker-translated"),
-    {
-      title: "Seleccione una fecha",
-      monthsFull: [
-        "Enero",
-        "Febrero",
-        "Marzo",
-        "Abril",
-        "Mayo",
-        "Junio",
-        "Julio",
-        "Agosto",
-        "Septiembre",
-        "Octubre",
-        "Noviembre",
-        "Diciembre",
-      ],
-      monthsShort: [
-        "Ene",
-        "Feb",
-        "Mar",
-        "Abr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      weekdaysFull: [
-        "Domingo",
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-      ],
-      weekdaysShort: ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
-      weekdaysNarrow: ["D", "L", "M", "M", "J", "V", "S"],
-      okBtnText: "Ok",
-      clearBtnText: "Borrar",
-      cancelBtnText: "Cancelar",
+let toggleFormBtn = document.getElementById("toggle-form-btn");
+let aptFormContainer = document.getElementById("apt-form-container");
+
+if (toggleFormBtn && aptFormContainer) {
+  toggleFormBtn.addEventListener("click", () => {
+    console.log("toggleFormBtn clicked");
+    console.log("background color {} " + document.body.style.backgroundColor);
+    aptFormContainer.style.display = "block";
+  });
+}
+
+let closeAptForm = document.getElementById("close-apt-form");
+if (closeAptForm && aptFormContainer) {
+  closeAptForm.addEventListener("click", () => {
+    console.log("closeAptForm clicked");
+    aptFormContainer.style.display = "none";
+  });
+}
+
+let datePicker = document.querySelector("#datepicker-translated");
+if (datePicker) {
+  const datepickerTranslated = new Datepicker(
+      datePicker,
+      {
+        title: "Seleccione una fecha",
+        monthsFull: [
+          "Enero",
+          "Febrero",
+          "Marzo",
+          "Abril",
+          "Mayo",
+          "Junio",
+          "Julio",
+          "Agosto",
+          "Septiembre",
+          "Octubre",
+          "Noviembre",
+          "Diciembre",
+        ],
+        monthsShort: [
+          "Ene",
+          "Feb",
+          "Mar",
+          "Abr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ],
+        weekdaysFull: [
+          "Domingo",
+          "Lunes",
+          "Martes",
+          "Miércoles",
+          "Jueves",
+          "Viernes",
+          "Sábado",
+        ],
+        weekdaysShort: ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
+        weekdaysNarrow: ["D", "L", "M", "M", "J", "V", "S"],
+        okBtnText: "Ok",
+        clearBtnText: "Borrar",
+        cancelBtnText: "Cancelar",
+      }
+  );
+}
+
+document
+.getElementById("slim-toggler")
+?.addEventListener("click", () => {
+  const instance = Sidenav.getInstance(
+      document.getElementById("sidenav-4")
+  );
+  instance.toggleSlim();
+});
+
+const sidenav2 = document.getElementById("sidenav-1");
+if (sidenav2) {
+  const sidenavInstance2 = Sidenav.getInstance(sidenav2);
+  let innerWidth2 = null;
+  const setMode2 = (e) => {
+    // Check necessary for Android devices
+    if (window.innerWidth === innerWidth2) {
+      return;
     }
-);
+
+    innerWidth2 = window.innerWidth;
+
+    if (window.innerWidth < sidenavInstance2.getBreakpoint("xl")) {
+      sidenavInstance2.changeMode("over");
+      sidenavInstance2.hide();
+    } else {
+      sidenavInstance2.changeMode("side");
+      sidenavInstance2.show();
+    }
+  };
+
+  if (window.innerWidth < sidenavInstance2.getBreakpoint("sm")) {
+    setMode2();
+  }
+
+  // Event listeners
+  window.addEventListener("resize", setMode2);
+
+}

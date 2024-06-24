@@ -39,6 +39,8 @@ build/
 
 log
 webroot/course
+webroot/dynamic
+webroot/tmp
 .idea
 config
 schema

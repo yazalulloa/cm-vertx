@@ -13,6 +13,18 @@ public class EnvUtil {
   private EnvUtil() {
   }
 
+  public static long getLong(String key) {
+    return Optional.ofNullable(System.getenv(key))
+        .map(str -> {
+          try {
+            return Long.parseLong(str);
+          } catch (Exception e) {
+            return null;
+          }
+        })
+        .orElseThrow();
+  }
+
   public static int getInt(String key, int dflt) {
     return Optional.ofNullable(System.getenv(key))
         .map(str -> {

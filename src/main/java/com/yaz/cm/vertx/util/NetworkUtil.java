@@ -22,7 +22,7 @@ public class NetworkUtil {
 
   public static void showPublicIp() {
     final var timeZone = TimeZone.getDefault();
-    log.info(timeZone.toString());
+    //log.info(timeZone.toString());
     TimeZone.setDefault(timeZone);
     Single.fromCallable(NetworkUtil::getPublicIp)
         .subscribeOn(Schedulers.io())

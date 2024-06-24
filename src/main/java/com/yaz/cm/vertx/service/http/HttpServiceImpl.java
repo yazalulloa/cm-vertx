@@ -1,20 +1,13 @@
 package com.yaz.cm.vertx.service.http;
 
-import com.yaz.cm.vertx.util.ReflectionUtil;
 import com.yaz.cm.vertx.util.rx.RetryWithDelay;
 import com.yaz.cm.vertx.verticle.HttpClientVerticle;
 import com.yaz.cm.vertx.vertx.VertxHandler;
-import io.netty.handler.proxy.ProxyConnectException;
-import io.netty.resolver.dns.DnsNameResolverTimeoutException;
 import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.eventbus.DeliveryOptions;
-import java.net.NoRouteToHostException;
-import java.net.UnknownHostException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})

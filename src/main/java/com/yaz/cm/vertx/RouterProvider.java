@@ -9,13 +9,16 @@ import com.yaz.cm.vertx.controller.RatesController;
 import com.yaz.cm.vertx.domain.constants.GoogleUrls;
 import com.yaz.cm.vertx.service.LoginService;
 import com.yaz.cm.vertx.sse.SSEHandler;
+import com.yaz.cm.vertx.util.Constants;
 import com.yaz.cm.vertx.util.EnvUtil;
+import com.yaz.cm.vertx.vertx.CacheTemplateHandler;
 import com.yaz.cm.vertx.vertx.RequestLogHandler;
 import com.yaz.cm.vertx.vertx.SseTimeoutHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.oauth2.OAuth2Auth;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
@@ -41,7 +44,9 @@ import io.vertx.ext.web.handler.TemplateHandler;
 import io.vertx.ext.web.handler.TimeoutHandler;
 import io.vertx.ext.web.handler.XFrameHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
+import io.vertx.ext.web.sstore.cookie.CookieSessionStore;
 import io.vertx.micrometer.PrometheusScrapingHandler;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -158,18 +163,27 @@ public class RouterProvider {
         //.setOrigin(origin)
         .setHeaderName(csrfHeaderName);
 
-    final var timeoutHandler = TimeoutHandler.create(TimeUnit.SECONDS.toMillis(60));
+    final var requestTimeout = EnvUtil.getLong("REQUEST_TIMEOUT");
+    final var requestTimeoutUnit = TimeUnit.valueOf(System.getenv("REQUEST_TIMEOUT_UNIT"));
+
+    final var timeoutHandler = TimeoutHandler.create(requestTimeoutUnit.toMillis(requestTimeout));
+
+    final var localSessionStore = LocalSessionStore.create(vertx, "condominium-manager");
+    final var cookieSessionStore = CookieSessionStore.create(vertx, System.getenv("COOKIE_SECRET"));
+
+    final var sessionTimeout = EnvUtil.getLong("SESSION_TIMEOUT");
+    final var sessionTimeoutUnit = TimeUnit.valueOf(System.getenv("SESSION_TIMEOUT_UNIT"));
 
     router.route()
         .handler(new SseTimeoutHandler(timeoutHandler))
         .handler(ResponseTimeHandler.create())
         .handler(ResponseContentTypeHandler.create())
-        .handler(SessionHandler.create(LocalSessionStore.create(vertx, "condominium-manager"))
-            .setSessionCookieName("uh23sd-dg9321s.sdg912")
-            .setSessionTimeout(TimeUnit.HOURS.toMillis(12))
-            .setCookieless(false)
+        .handler(SessionHandler.create(localSessionStore)
+                .setSessionCookieName("uh23sd-dg9321s.sdg912")
+                .setSessionTimeout(sessionTimeoutUnit.toMillis(sessionTimeout))
+           /* .setCookieless(false)
             .setCookieHttpOnlyFlag(true)
-            .setCookieSecureFlag(true)
+            .setCookieSecureFlag(true)*/
         )
         .handler(EnvUtil.bool("CUSTOM_ACCESS_LOG")
             ? RequestLogHandler.create(vertx)
@@ -186,6 +200,12 @@ public class RouterProvider {
       ctx.response().putHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
       ctx.next();
     };
+
+    router.route().failureHandler(ctx -> {
+      final var failure = ctx.failure();
+      log.info("ROUTER_FAILURE {} {}", ctx.request().method(), ctx.request().path(), failure);
+      ctx.redirect("/");
+    });
 
     router.route().handler(addHeadersHandler);
 
@@ -204,7 +224,7 @@ public class RouterProvider {
 
     googleCallbackRoute.failureHandler(ctx -> {
       log.info("googleCallback {}", googleCallback, ctx.failure());
-      ctx.redirect("/login");
+      ctx.redirect("/");
     });
 
     loginHandler.handler(loginService::login);
@@ -242,7 +262,10 @@ public class RouterProvider {
     router.delete("/api/buildings/:id").handler(buildingController::delete);
     router.delete("/api/apartments/:building_id/:number").handler(apartmentController::delete);
 
-    final var templateHandler = TemplateHandler.create(templateEngine);
+    final var cacheTemplateHandler = new CacheTemplateHandler(vertx, templateEngine,
+        TemplateHandler.DEFAULT_TEMPLATE_DIRECTORY, TemplateHandler.DEFAULT_CONTENT_TYPE);
+
+    final var templateHandler = cacheTemplateHandler;// TemplateHandler.create(templateEngine);
 
     final var cacheEnabled = EnvUtil.bool("CACHE_ENABLED");
 
@@ -253,6 +276,9 @@ public class RouterProvider {
 
       templateHandler.handle(ctx);
     };
+
+    router.get("/dynamic/*")
+        .handler(cacheTemplateHandler::preHandler);
 
     final var dataRateController = new DataController(ratesController);
     router.get("/dynamic/rate-card").handler(dataRateController);
@@ -275,6 +301,7 @@ public class RouterProvider {
 
     router.route("/*").handler(ctx -> {
 
+      // log.info("SERVING STATIC {}", ctx.request().path());
       final var path = ctx.request().path();
 
       if (path.isEmpty() || path.endsWith("/")) {
@@ -284,13 +311,15 @@ public class RouterProvider {
 
       final var indexOfDot = path.lastIndexOf(".");
       if (indexOfDot == -1) {
+        log.info("REROUTING {} {}", ctx.request().method(), ctx.request().path());
         ctx.reroute(path + ".html");
       } else {
         ctx.next();
       }
 
     });
-    router.route("/*").handler(StaticHandler.create().setCachingEnabled(cacheEnabled));
+
+    router.route("/*").handler(StaticHandler.create(Constants.STATIC_DIR).setCachingEnabled(cacheEnabled));
     return router;
   }
 

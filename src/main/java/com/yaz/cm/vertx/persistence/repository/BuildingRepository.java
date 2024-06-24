@@ -27,7 +27,7 @@ public class BuildingRepository {
       INSERT IGNORE INTO buildings (id, name, rif, main_currency, debt_currency, currencies_to_show_amount_to_pay, fixed_pay, fixed_pay_amount, round_up_payments, amount_of_apts, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       """;
 
-  private static final String SELECT_ALL_IDS = "SELECT id FROM %s".formatted(COLLECTION);
+  private static final String SELECT_ALL_IDS = "SELECT id FROM %s ORDER BY id".formatted(COLLECTION);
 
   private final MySqlService mySqlService;
 

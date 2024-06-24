@@ -1,8 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'media',
   content: [
     "./webroot/**/*.{html,js}",
-    "./node_modules/tw-elements/dist/js/**/*.js"],
+    "./node_modules/tw-elements/dist/js/**/*.js",
+    "../node_modules/tw-elements/dist/js/tw-elements.umd.min.js"
+  ],
   plugins: [
     require("tw-elements/dist/plugin.cjs"),
     require("daisyui")
